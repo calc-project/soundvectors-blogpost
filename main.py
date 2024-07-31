@@ -27,8 +27,18 @@ if __name__ == "__main__":
     table = []
     for system in ["phoible", "panphon"]:
         unique_sounds, data = load_data(system)
-        _, num_unique_vecs_own, num_unique_sounds = map_vector_to_sounds(unique_sounds, lambda x: data[x][0]["features"])
+        own_feature_dict, num_unique_vecs_own, num_unique_sounds = map_vector_to_sounds(unique_sounds, lambda x: data[x][0]["features"])
         _, num_unique_soundvecs, _ = map_vector_to_sounds(unique_sounds, sv.get_vec)
         table.append([system.upper(), num_unique_sounds, num_unique_vecs_own, num_unique_soundvecs])
 
-    print(tabulate(table, headers=["SOURCE", "UNIQUE SOUNDS", "UNIQUE VECTORS (OWN)", "UNIQUE VECTORS (SOUNDVEC)"]))
+        if system == "phoible":
+            # check how many sounds contain multi-valued features
+            counter = 0
+            for feature_str, sounds in own_feature_dict.items():
+                if "," in feature_str:
+                    counter += len(sounds)
+
+            print(f"Phoible contains {counter} sounds with multi-valued features.")
+
+    print(tabulate(table, headers=["SOURCE", "UNIQUE SOUNDS", "UNIQUE VECTORS (OWN)", "UNIQUE VECTORS (SOUNDVEC)"],
+                   tablefmt="github"))
